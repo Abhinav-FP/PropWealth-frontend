@@ -1,0 +1,22 @@
+import Vue from 'vue'
+import Vuetify from 'vuetify/lib/framework'
+
+Vue.use(Vuetify)
+
+export default new Vuetify({
+  breakpoint: {
+    thresholds: {
+      xs: 800
+    }
+  },
+  icons: {
+    iconfont: 'mdiSvg'
+  },
+  theme: {
+    themes: {
+      light: {
+        primary: '#000'
+      }
+    }
+  }
+})
