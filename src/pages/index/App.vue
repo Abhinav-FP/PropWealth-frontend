@@ -385,7 +385,7 @@
                   <span v-if="config.tou && config.help"> | </span>
 
                   <div v-if="config.tou" class="mx-2 social-icon">
-                    <a href="https://www.linkedin.com/company/investors-horizon/" target="_blank">
+                    <a href="https://www.linkedin.com/company/propwealth-au" target="_blank">
                       <div class="float-left newsletter-logo mr-1">
                         <v-img :src="require('../../assets/LinkedIn.svg')" alt="LinkedIn" class="svg-filter-red" contain height="24" width="24"
                           eager>
@@ -482,7 +482,7 @@
                   <span v-if="config.tou && config.help"> | </span>
 
                   <div v-if="config.tou" class="mx-2 social-icon">
-                    <a href="https://www.linkedin.com/company/investors-horizon/" target="_blank">
+                    <a href="https://www.linkedin.com/company/propwealth-au" target="_blank">
                       <div class="float-left newsletter-logo mr-1">
                         <v-img :src="require('../../assets/LinkedIn.svg')" alt="LinkedIn" class="svg-filter-red" contain height="24" width="24"
                           eager>
@@ -3858,9 +3858,9 @@ ul {
 }
 
 /* disable transform based slide as scroll used instead to support scroll */
-.v-tabs .v-tabs-bar__content {
+/*.v-tabs .v-tabs-bar__content {
   transform: none !important;
-}
+}*/
 
 /* allow tabs to scroll left/right */
 /*
