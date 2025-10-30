@@ -1740,7 +1740,7 @@ export default {
 
       const results = this.fuse.search(safeQuery, { threshold: 0.4 })
 
-      return results.slice(0, 5).map(result => {
+      return results.slice(0, 10).map(result => {
         const item = result.item
         item.place_name = `${item.properties.name}, ${item.properties.state}`
 
@@ -3114,6 +3114,7 @@ export default {
       const q = (query || '').trim()
       if (q && this.fuse) {
         this.searchResults = this.suburbSearch(q)
+        console.log("searchResults (from searchQuery watcher):", this.searchResults)
       } else {
         this.searchResults = []
       }
@@ -3123,6 +3124,7 @@ export default {
       if (newVal && this.searchQuery) {
         const q = (this.searchQuery || '').trim()
         this.searchResults = q ? this.suburbSearch(q) : []
+        console.log("searchResults (from searchQuery watcher):", this.searchResults)
       }
     },
     '$vuetify.breakpoint.xs': function (xs) {
@@ -3263,6 +3265,7 @@ export default {
       }
 
       if (id) {
+        console.log("id1", id);
         this.fetchSuburb(id)
           .then(() => {
             const selectedFeature = id in this.data ? this.suburbData[id] : null

@@ -46,7 +46,6 @@ desktop.ini
 # updatePublic.sh
 
 # Test and temporary data
-data/
 *.log
 *.bak
 *.tmp
