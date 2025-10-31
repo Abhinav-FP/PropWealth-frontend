@@ -1679,6 +1679,12 @@ export default {
       }
     },
 
+
+
+
+
+    
+
     // Helper method to get user-friendly error messages
     getErrorMessage: function (error) {
       if (error.message.includes('HTTP 404')) {
