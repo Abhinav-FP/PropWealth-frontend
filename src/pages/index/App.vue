@@ -1611,7 +1611,7 @@ export default {
     },
 
     fetchSuburb: function (id) {
-      const path = process.env.VUE_APP_API_URL;
+      const path = `http://127.0.0.1:8000/api`;
       const primaryBase = `${path}/proxy-suburb`;
       const fallbackBase = `/api/proxy-suburb`;
 
@@ -1740,7 +1740,7 @@ export default {
 
       const results = this.fuse.search(safeQuery, { threshold: 0.4 })
 
-      return results.slice(0, 10).map(result => {
+      return results.slice(0, 5).map(result => {
         const item = result.item
         item.place_name = `${item.properties.name}, ${item.properties.state}`
 
@@ -2156,7 +2156,7 @@ export default {
         }
       }
 
-      const apiUrl = process.env.VUE_APP_API_URL;
+      const apiUrl = `http://127.0.0.1:8000/api`;
       const endpoint = `${apiUrl}/reports`;
 
       // Combine country code with mobile number
@@ -2514,7 +2514,7 @@ export default {
           return;
         }
 
-        const apiUrl = process.env.VUE_APP_API_URL;
+        const apiUrl = `http://127.0.0.1:8000/api`;
         const requestPayload = {
           user_id: this.currentUserId,
           otp: otpCode
@@ -2904,7 +2904,7 @@ export default {
         const seifa = await this.captureChartByRef('SEIFA');
 
         // PDF generation request
-        const pdfEndpoint = `${process.env.VUE_APP_API_URL}/report/generate-pdf`;
+        const pdfEndpoint = `http://127.0.0.1:8000/api/report/generate-pdf`;
 
         // No authentication required
         const pdfResponse = await fetch(pdfEndpoint, {
@@ -3114,7 +3114,6 @@ export default {
       const q = (query || '').trim()
       if (q && this.fuse) {
         this.searchResults = this.suburbSearch(q)
-        console.log("searchResults (from searchQuery watcher):", this.searchResults)
       } else {
         this.searchResults = []
       }
@@ -3124,7 +3123,6 @@ export default {
       if (newVal && this.searchQuery) {
         const q = (this.searchQuery || '').trim()
         this.searchResults = q ? this.suburbSearch(q) : []
-        console.log("searchResults (from searchQuery watcher):", this.searchResults)
       }
     },
     '$vuetify.breakpoint.xs': function (xs) {
@@ -3265,7 +3263,6 @@ export default {
       }
 
       if (id) {
-        console.log("id1", id);
         this.fetchSuburb(id)
           .then(() => {
             const selectedFeature = id in this.data ? this.suburbData[id] : null
