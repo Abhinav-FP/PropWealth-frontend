@@ -66,7 +66,7 @@
                         @click="selectResult(result.id)">
                         <v-list-item-content>
                           <v-list-item-title>{{ result.properties.name }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ result.properties.state }}</v-list-item-subtitle>
+                          <v-list-item-subtitle>{{ statesLocal[result.properties.state] }}</v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
 
@@ -881,6 +881,7 @@ export default {
     mapLoaded: false,
     mapIsLoaded: false, // Renamed to avoid conflict
     isloading: false,
+    statesLocal,
 
     searchQuery: null,
     searchResults: [],
@@ -1478,7 +1479,7 @@ export default {
         });
     },
 
-    fetchData: function () {
+    /*fetchData: function () {
       this.isloading = true;
       const apiUrl = process.env.VUE_APP_API_URL;
       const primary = `${apiUrl}/suburbs-data`;
@@ -1539,8 +1540,35 @@ export default {
           }
         });
     },
+    */
+     
+    fetchData: function () {
+  this.isloading = true;
 
+  try {
+    if (suburbsLocal && suburbsLocal.type === 'FeatureCollection' && Array.isArray(suburbsLocal.features)) {
+      // Always use the local dataset
+      this.suburbs = suburbsLocal;
 
+      // Initialize Fuse with local data
+      this.fuse = new Fuse(this.suburbs.features, { keys: ['properties.name'] });
+
+      console.log('✅ Using local suburbs data only:', this.suburbs.features.length, 'items');
+    } else {
+      throw new Error('❌ Local suburbs data missing or invalid.');
+    }
+
+    // Initialize other related data
+    this.fetchSuburbs();
+
+  } catch (e) {
+    console.error('Failed to load local suburbs data:', e);
+  } finally {
+    setTimeout(() => {
+      this.isloading = false;
+    }, 1000);
+  }
+},
 
     touchStart: function (e) {
       this.startX = e.touchstartX
@@ -1740,7 +1768,7 @@ export default {
 
       const results = this.fuse.search(safeQuery, { threshold: 0.4 })
 
-      return results.slice(0, 10).map(result => {
+      return results.slice(0, 5).map(result => {
         const item = result.item
         item.place_name = `${item.properties.name}, ${item.properties.state}`
 
