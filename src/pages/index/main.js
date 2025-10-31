@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import '../../plugins/suppressConsole'
+// import '../../plugins/suppressConsole'
 import App from './App.vue'
 import vuetify from '../../plugins/vuetify'
 import '../../plugins/toast'

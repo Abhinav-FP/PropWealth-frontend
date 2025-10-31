@@ -834,7 +834,6 @@ const charts = [
   'Unit Price Segments',
   'Summary'
 ]
-
 const numberFormat = new Intl.NumberFormat('en-AU', {
   style: 'currency',
   currency: 'AUD',
@@ -1586,7 +1585,7 @@ export default {
       this.tab = Math.max(this.$vuetify.breakpoint.xs ? 0 : 1, this.tab - 1)
     },
     nextTab: function () {
-      this.tab = Math.min((this.tabs.length + 1) - 1, this.tab + 1)
+      this.tab = Math.min((this.tabs.length + 1) - 1, this.tab + 1);
     },
     scrollTabs: function (e) {
       e.preventDefault() // stop scrolling page
@@ -2914,7 +2913,8 @@ export default {
       // const mapData = await this.captureMap();
 
       try {
-        // Capture all charts from hidden components - no tab switching needed!
+        // Capture all charts from hidden components - no tab switching needed! 
+        this.tab=7;
         const houseInventoryChart = await this.captureChartByRef('houseInventory');
         const houseListingsChart = await this.captureChartByRef('houseListings');
         const housePriceChart = await this.captureChartByRef('housePrice');
@@ -2930,6 +2930,12 @@ export default {
 
         const elevation = await this.captureChartByRef('Elevation');
         const seifa = await this.captureChartByRef('SEIFA');
+        console.log("Hello");
+        const map = await this.captureMapForSuburb();
+        console.log("Hi");
+
+        // const map = await this.captureChartByRef('suburbTrendsMap');
+
 
         // PDF generation request
         const pdfEndpoint = `${process.env.VUE_APP_API_URL}/report/generate-pdf`;
@@ -2963,6 +2969,7 @@ export default {
             housePriceSegments: housePriceSegments,
             elevation: elevation,
             seifa: seifa,
+            map: map,
             user: this.user
           })
         });
@@ -4650,7 +4657,7 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
 
 
 .logo_bg {
-    background: #000000;
+    /* background: #000000; */
     border-radius: 10px;
     padding: 10px;
 }
