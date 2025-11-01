@@ -310,13 +310,13 @@
                       </v-tab-item>
                       <v-tab-item key="Profiles">
                         <v-card v-if="!(selectedFeature && !selectedFeature['SEIFA'])" height="200" elevation=0
-                          :loading="!(selectedFeature && selectedFeature['SEIFA'])">
+                          :loading="!(selectedFeature && selectedFeature['SEIFA'])" ref="SEIFA">
                           <template slot="progress">
                             <v-layout fill-height align-center justify-center ma-0>
                               <v-progress-circular color="primary" indeterminate></v-progress-circular>
                             </v-layout>
                           </template>
-                          <BarChart v-if="selectedFeature && selectedFeature['SEIFA']" ref="SEIFA"
+                          <BarChart v-if="selectedFeature && selectedFeature['SEIFA']"
                             class="bar-chart seifa-chart float-left" title="Social Index Distribution"
                             :data="selectedFeature['SEIFA']">
                           </BarChart>
