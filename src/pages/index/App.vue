@@ -881,6 +881,7 @@ export default {
     mapIsLoaded: false, // Renamed to avoid conflict
     isloading: false,
     statesLocal,
+    mapImage: null,
 
     searchQuery: null,
     searchResults: [],
@@ -1832,7 +1833,7 @@ export default {
 
 
     // Coded by coder
-    handleGetReportClick() {
+    async handleGetReportClick() {
 
       if (!this.selectedFeature) {
         Swal.fire({
@@ -1844,6 +1845,9 @@ export default {
         });
         return;
       }
+      this.tab=7;
+      this.mapImage = await this.captureMapForSuburb();
+
 
       // Authentication removed - show report form directly
       // Prefill from localStorage if available
@@ -2032,27 +2036,87 @@ export default {
     async captureMapForSuburb(bounds) {
       console.log('Capturing map for bounds:', bounds);
 
-      // Ensure the map is ready
       if (!this.mapLoaded) {
-        console.warn('Map is not loaded yet. Please try again later.');
+        console.warn('Map is not loaded yet.');
+        return null;
+      }
+
+      const mapElement = this.$refs.suburbTrendsMap;
+      if (!mapElement) {
+        console.error('Map element not found.');
         return null;
       }
 
       try {
-        const canvas = await html2canvas(this.$refs.suburbTrendsMap, {
+        // STEP 1: Wait for map tiles to load
+        const tiles = mapElement.querySelectorAll('img');
+        await Promise.all(
+          Array.from(tiles).map(img =>
+            img.complete
+              ? Promise.resolve()
+              : new Promise(resolve => {
+                  img.onload = resolve;
+                  img.onerror = resolve;
+                })
+          )
+        );
+
+        console.log('✅ All map tiles have loaded.');
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // STEP 2: Capture full map
+        const fullCanvas = await html2canvas(mapElement, {
           useCORS: true,
-          backgroundColor: null,
-          scale: 2 // Increase scale for better quality
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          scale: 2,
+          logging: false,
         });
-        console.log('Successfully captured map canvas');
-        return canvas.toDataURL('image/png');
+
+        // STEP 3: Crop from left/right
+        const cropPercent = 0.15; // crop 15% each side
+        const cropX = fullCanvas.width * cropPercent;
+        const cropWidth = fullCanvas.width * (1 - cropPercent * 2);
+        const cropHeight = fullCanvas.height;
+
+        const croppedCanvas = document.createElement('canvas');
+        croppedCanvas.width = cropWidth;
+        croppedCanvas.height = cropHeight;
+
+        const ctx = croppedCanvas.getContext('2d');
+        ctx.drawImage(
+          fullCanvas,
+          cropX, 0, cropWidth, cropHeight,
+          0, 0, cropWidth, cropHeight
+        );
+
+        // STEP 4: Convert to base64 (start with full quality)
+        let quality = 1.0;
+        let dataURL = croppedCanvas.toDataURL('image/jpeg', quality);
+
+        // STEP 5: Compress if larger than 10 MB
+        const maxSize = 10 * 1024 * 1024; // 10 MB
+        while (dataURL.length * 0.75 > maxSize && quality > 0.1) {
+          quality -= 0.1;
+          dataURL = croppedCanvas.toDataURL('image/jpeg', quality);
+          console.log(`🔄 Compressed to quality ${quality.toFixed(1)} — size ${(dataURL.length * 0.75 / 1024 / 1024).toFixed(2)} MB`);
+        }
+
+        const finalSizeMB = (dataURL.length * 0.75 / 1024 / 1024).toFixed(2);
+        console.log(`✅ Final image size: ${finalSizeMB} MB (quality: ${quality.toFixed(1)})`);
+
+        // Optional: download locally for testing
+        // const a = document.createElement('a');
+        // a.href = dataURL;
+        // a.download = 'cropped_map_compressed.jpg';
+        // a.click();
+
+        return dataURL;
       } catch (error) {
-        console.error('Error capturing map canvas:', error);
+        console.error('❌ Error capturing map canvas:', error);
         return null;
       }
     },
-
-
 
     submitReport: async function () {
       this.errors = {};
@@ -2930,9 +2994,8 @@ export default {
 
         const elevation = await this.captureChartByRef('Elevation');
         const seifa = await this.captureChartByRef('SEIFA');
-        console.log("Hello");
-        const map = await this.captureMapForSuburb();
-        console.log("Hi");
+        // const map = await this.captureMapForSuburb();
+        console.log("Image we are sedning for map: ", this.mapImage)
 
         // const map = await this.captureChartByRef('suburbTrendsMap');
 
@@ -2969,7 +3032,7 @@ export default {
             housePriceSegments: housePriceSegments,
             elevation: elevation,
             seifa: seifa,
-            map: map,
+            map: this.mapImage,
             user: this.user
           })
         });
