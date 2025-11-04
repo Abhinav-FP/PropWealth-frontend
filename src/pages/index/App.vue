@@ -1994,8 +1994,9 @@ export default {
       // Draw original chart onto it
       tmpCtx.drawImage(canvas, 0, 0);
 
-      // Export as PNG (white background included)
-      return tmpCanvas.toDataURL("image/png");
+      // Export as JPEG with compression to reduce payload size
+      // Quality 0.75 strikes a balance between size and readability
+      return tmpCanvas.toDataURL("image/jpeg", 0.75);
     },
 
 
@@ -3140,14 +3141,30 @@ export default {
           timerProgressBar: true
         });
 
-        // Preserve user form data for future prefilling
-        const reportUserInfo = localStorage.getItem('reportUserInfo');
-        localStorage.clear();
-        if (reportUserInfo) {
-          localStorage.setItem('reportUserInfo', reportUserInfo);
-          console.log('💾 Preserved reportUserInfo after PDF download:', reportUserInfo);
+        // Preserve user form data for future prefilling (guarded for browsers blocking storage)
+        try {
+          const reportUserInfo = typeof window !== 'undefined' && window.localStorage
+            ? window.localStorage.getItem('reportUserInfo')
+            : null;
+
+          if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.clear();
+            if (reportUserInfo) {
+              window.localStorage.setItem('reportUserInfo', reportUserInfo);
+              console.log('💾 Preserved reportUserInfo after PDF download:', reportUserInfo);
+            }
+          }
+        } catch (e) {
+          console.warn('LocalStorage not accessible after PDF generation:', e);
         }
-        sessionStorage.clear();
+
+        try {
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            window.sessionStorage.clear();
+          }
+        } catch (e) {
+          console.warn('SessionStorage not accessible after PDF generation:', e);
+        }
 
         setTimeout(() => {
           window.location.reload();
