@@ -53,7 +53,7 @@
 
                   <h2 v-if="selectedFeature.SuburbData.Suburb" class="panel-header text-h2 pt-0">
                     {{ selectedFeature.SuburbData.Suburb }}
-                    <span v-if="selectedId in data && data[selectedId].State"> {{ data[selectedId].State }}</span>
+                    <!-- <span v-if="selectedId in data && data[selectedId].State"> {{ data[selectedId].State }}</span> -->
                   </h2>
                 </div>
 
@@ -309,24 +309,38 @@
                         </v-card>
                       </v-tab-item>
                       <v-tab-item key="Profiles">
-                        <v-card v-if="!(selectedFeature && !selectedFeature['SEIFA'])" height="200" elevation=0
-                          :loading="!(selectedFeature && selectedFeature['SEIFA'])" ref="SEIFA">
-                          <template slot="progress">
-                            <v-layout fill-height align-center justify-center ma-0>
-                              <v-progress-circular color="primary" indeterminate></v-progress-circular>
-                            </v-layout>
-                          </template>
-                          <BarChart v-if="selectedFeature && selectedFeature['SEIFA']"
-                            class="bar-chart seifa-chart float-left" title="Social Index Distribution"
-                            :data="selectedFeature['SEIFA']">
-                          </BarChart>
-                          <v-list dense class="legend float-right">
-                            <v-list-item v-for="[v, color] in sa1SeifaLegend" :key="v">
-                              <v-avatar :color="color" tile class="mr-1" size="16"></v-avatar> Rank {{ v }}
-                            </v-list-item>
-                          </v-list>
-                        </v-card>
-                      </v-tab-item>
+  <v-card
+    v-if="!(selectedFeature && !selectedFeature['SEIFA'])"
+    height="200"
+    elevation="0"
+    :loading="!(selectedFeature && selectedFeature['SEIFA'])"
+  >
+    <template slot="progress">
+      <v-layout fill-height align-center justify-center ma-0>
+        <v-progress-circular color="primary" indeterminate />
+      </v-layout>
+    </template>
+
+    <!-- WRAPPER FOR CAPTURE -->
+    <div ref="seifaCaptureArea" class="seifa-capture-area d-flex">
+
+      <BarChart
+        v-if="selectedFeature && selectedFeature['SEIFA']"
+        class="bar-chart seifa-chart float-left"
+        title="Social Index Distribution"
+        :data="selectedFeature['SEIFA']"
+      />
+
+      <v-list dense class="legend float-right">
+        <v-list-item v-for="[v, color] in sa1SeifaLegend" :key="v">
+          <v-avatar :color="color" tile class="mr-1" size="16" />
+          Rank {{ v }}
+        </v-list-item>
+      </v-list>
+      
+    </div>
+  </v-card>
+</v-tab-item>
                     </v-tabs-items>
                   </div>
                 </v-fade-transition>
@@ -882,6 +896,7 @@ export default {
     isloading: false,
     statesLocal,
     mapImage: null,
+    SeifaImage: null,
 
     searchQuery: null,
     searchResults: [],
@@ -1847,6 +1862,8 @@ export default {
       }
       this.tab=7;
       this.mapImage = await this.captureMapForSuburb();
+      this.SeifaImage = await this.captureSeifaSection();
+      // console.log('SEIFA chart captured:', seifa);
 
 
       // Authentication removed - show report form directly
@@ -1950,56 +1967,77 @@ export default {
     },
 
     async captureChartByRef(refName) {
-      const hiddenRefMap = {
-        'houseInventory': 'houseInventoryHidden',
-        'houseListings': 'houseListingsHidden',
-        'housePrice': 'housePriceHidden',
-        'houseRents': 'houseRentsHidden',
-        'unitInventory': 'unitInventoryHidden',
-        'unitListings': 'unitListingsHidden',
-        'unitPrice': 'unitPriceHidden',
-        'unitRents': 'unitRentsHidden',
-        'vacancyRates': 'vacancyRatesHidden',
-        'housePriceSegments': 'housePriceSegmentsHidden',
-        'unitPriceSegments': 'unitPriceSegmentsHidden',
-        'Elevation': 'elevationHidden',
-        'SEIFA': 'seifaHidden'
-      };
+  const hiddenRefMap = {
+    'houseInventory': 'houseInventoryHidden',
+    'houseListings': 'houseListingsHidden',
+    'housePrice': 'housePriceHidden',
+    'houseRents': 'houseRentsHidden',
+    'unitInventory': 'unitInventoryHidden',
+    'unitListings': 'unitListingsHidden',
+    'unitPrice': 'unitPriceHidden',
+    'unitRents': 'unitRentsHidden',
+    'vacancyRates': 'vacancyRatesHidden',
+    'housePriceSegments': 'housePriceSegmentsHidden',
+    'unitPriceSegments': 'unitPriceSegmentsHidden',
+    'Elevation': 'elevationHidden',
+    'SEIFA': 'seifaHidden'
+  };
 
-      const targetRef = hiddenRefMap[refName] || refName;
+  const targetRef = hiddenRefMap[refName] || refName;
 
-      await this.$nextTick();
-      const chartComponent = this.$refs[targetRef];
+  await this.$nextTick();
+  const chartComponent = this.$refs[targetRef];
 
-      if (!chartComponent || chartComponent === undefined) {
-        console.log(`Chart component with ref '${targetRef}' not found.`);
-        return null;
-      }
+  if (!chartComponent) {
+    console.log(`Chart component with ref '${targetRef}' not found.`);
+    return null;
+  }
 
-      const canvas = chartComponent.$refs.canvas;
-      const ctx = canvas.getContext("2d");
-      console.log(ctx);
+  const canvas = chartComponent.$refs.canvas;
+  // const ctx = canvas.getContext("2d");
 
+  const tmpCanvas = document.createElement("canvas");
+  tmpCanvas.width = canvas.width;
+  tmpCanvas.height = canvas.height;
+  const tmpCtx = tmpCanvas.getContext("2d");
 
-      // Create a temporary canvas with white background
-      const tmpCanvas = document.createElement("canvas");
-      tmpCanvas.width = canvas.width;
-      tmpCanvas.height = canvas.height;
-      const tmpCtx = tmpCanvas.getContext("2d");
+  // White background so JPEG doesn't look transparent/noisy
+  tmpCtx.fillStyle = "#ffffff";
+  tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+  tmpCtx.drawImage(canvas, 0, 0);
 
-      // Fill with white
-      tmpCtx.fillStyle = "#ffffff";
-      tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+  // ✅ Save as JPEG at 60% quality
+  const imgData = tmpCanvas.toDataURL("image/jpeg", 0.6);
 
-      // Draw original chart onto it
-      tmpCtx.drawImage(canvas, 0, 0);
+  // ✅ Optional auto-download
+  // const link = document.createElement("a");
+  // link.href = imgData;
+  // link.download = `${refName}.jpg`;
+  // link.click();
 
-      // Export as JPEG with compression to reduce payload size
-      // Quality 0.75 strikes a balance between size and readability
-      return tmpCanvas.toDataURL("image/jpeg", 0.75);
-    },
+  return imgData;
+},
 
+async captureSeifaSection() {
+  try {
+    const el = this.$refs.seifaCaptureArea;
+    if (!el) throw new Error("SEIFA capture element not found");
 
+    const canvas = await html2canvas(el, { scale: 2 });
+    const img = canvas.toDataURL("image/png");
+
+    // ---- DOWNLOAD IMAGE ----
+    // const link = document.createElement("a");
+    // link.href = img;
+    // link.download = `SEIFA-Chart-${Date.now()}.png`; // dynamic filename
+    // link.click();
+    // ------------------------
+
+    return img; // if you still want the data for PDF usage
+  } catch (err) {
+    console.error("Error capturing SEIFA graph:", err);
+  }
+},
 
     // async captureChartByRef(refName) {
     //   const hiddenRefMap = {
@@ -2035,89 +2073,89 @@ export default {
 
 
     async captureMapForSuburb(bounds) {
-      console.log('Capturing map for bounds:', bounds);
+  console.log('Capturing map for bounds:', bounds);
 
-      if (!this.mapLoaded) {
-        console.warn('Map is not loaded yet.');
-        return null;
-      }
+  if (!this.mapLoaded) {
+    console.warn('Map is not loaded yet.');
+    return null;
+  }
 
-      const mapElement = this.$refs.suburbTrendsMap;
-      if (!mapElement) {
-        console.error('Map element not found.');
-        return null;
-      }
+  const mapElement = this.$refs.suburbTrendsMap;
+  if (!mapElement) {
+    console.error('Map element not found.');
+    return null;
+  }
 
-      try {
-        // STEP 1: Wait for map tiles to load
-        const tiles = mapElement.querySelectorAll('img');
-        await Promise.all(
-          Array.from(tiles).map(img =>
-            img.complete
-              ? Promise.resolve()
-              : new Promise(resolve => {
-                  img.onload = resolve;
-                  img.onerror = resolve;
-                })
-          )
-        );
+  try {
+    // STEP 1: Wait for map tiles to load
+    const tiles = mapElement.querySelectorAll('img');
+    await Promise.all(
+      Array.from(tiles).map(img =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise(resolve => {
+              img.onload = resolve;
+              img.onerror = resolve;
+            })
+      )
+    );
 
-        console.log('✅ All map tiles have loaded.');
-        await new Promise(resolve => setTimeout(resolve, 300));
+    console.log('✅ All map tiles have loaded.');
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-        // STEP 2: Capture full map
-        const fullCanvas = await html2canvas(mapElement, {
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          scale: 2,
-          logging: false,
-        });
+    // STEP 2: Capture full map
+    const fullCanvas = await html2canvas(mapElement, {
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      scale: 2,
+      logging: false,
+    });
 
-        // STEP 3: Crop from left/right
-        const cropPercent = 0.15; // crop 15% each side
-        const cropX = fullCanvas.width * cropPercent;
-        const cropWidth = fullCanvas.width * (1 - cropPercent * 2);
-        const cropHeight = fullCanvas.height;
+    // STEP 3: Crop from left/right
+    const cropPercent = 0.15;
+    const cropX = fullCanvas.width * cropPercent;
+    const cropWidth = fullCanvas.width * (1 - cropPercent * 2);
+    const cropHeight = fullCanvas.height;
 
-        const croppedCanvas = document.createElement('canvas');
-        croppedCanvas.width = cropWidth;
-        croppedCanvas.height = cropHeight;
+    const croppedCanvas = document.createElement('canvas');
+    croppedCanvas.width = cropWidth;
+    croppedCanvas.height = cropHeight;
 
-        const ctx = croppedCanvas.getContext('2d');
-        ctx.drawImage(
-          fullCanvas,
-          cropX, 0, cropWidth, cropHeight,
-          0, 0, cropWidth, cropHeight
-        );
+    const ctx = croppedCanvas.getContext('2d');
+    ctx.drawImage(
+      fullCanvas,
+      cropX, 0, cropWidth, cropHeight,
+      0, 0, cropWidth, cropHeight
+    );
 
-        // STEP 4: Convert to base64 (start with full quality)
-        let quality = 1.0;
-        let dataURL = croppedCanvas.toDataURL('image/jpeg', quality);
+    // ==== ✅ Compress to MAX 100 KB ====
+    let quality = 1.0;
+    let dataURL = croppedCanvas.toDataURL("image/jpeg", quality);
+    const maxBytes = 100 * 1024; // 100 KB
 
-        // STEP 5: Compress if larger than 10 MB
-        const maxSize = 10 * 1024 * 1024; // 10 MB
-        while (dataURL.length * 0.75 > maxSize && quality > 0.1) {
-          quality -= 0.1;
-          dataURL = croppedCanvas.toDataURL('image/jpeg', quality);
-          console.log(`🔄 Compressed to quality ${quality.toFixed(1)} — size ${(dataURL.length * 0.75 / 1024 / 1024).toFixed(2)} MB`);
-        }
+    while ((dataURL.length * 0.75) > maxBytes && quality > 0.1) {
+      quality -= 0.1;
+      dataURL = croppedCanvas.toDataURL("image/jpeg", quality);
+      console.log(`🔄 Compressing... Quality: ${quality.toFixed(2)}, Size: ${(dataURL.length*0.75/1024).toFixed(2)} KB`);
+    }
 
-        const finalSizeMB = (dataURL.length * 0.75 / 1024 / 1024).toFixed(2);
-        console.log(`✅ Final image size: ${finalSizeMB} MB (quality: ${quality.toFixed(1)})`);
+    const finalSizeKB = (dataURL.length * 0.75 / 1024).toFixed(2);
+    console.log(`✅ Final image: ${finalSizeKB} KB (Quality: ${quality.toFixed(2)})`);
 
-        // Optional: download locally for testing
-        // const a = document.createElement('a');
-        // a.href = dataURL;
-        // a.download = 'cropped_map_compressed.jpg';
-        // a.click();
+    // OPTIONAL auto-download
+    // const a = document.createElement("a");
+    // a.href = dataURL;
+    // a.download = `map-${Date.now()}.jpg`;
+    // a.click();
 
-        return dataURL;
-      } catch (error) {
-        console.error('❌ Error capturing map canvas:', error);
-        return null;
-      }
-    },
+    return dataURL;
+
+  } catch (err) {
+    console.error("❌ Error capturing map canvas:", err);
+    return null;
+  }
+},
 
     submitReport: async function () {
       this.errors = {};
@@ -2994,7 +3032,7 @@ export default {
         const housePriceSegments = await this.captureChartByRef('housePriceSegments');
 
         const elevation = await this.captureChartByRef('Elevation');
-        const seifa = await this.captureChartByRef('SEIFA');
+        // const seifa = await this.captureChartByRef('SEIFA');
         // const map = await this.captureMapForSuburb();
         console.log("Image we are sedning for map: ", this.mapImage)
 
@@ -3032,7 +3070,7 @@ export default {
             vacancyRatesChart: vacancyRatesChart,
             housePriceSegments: housePriceSegments,
             elevation: elevation,
-            seifa: seifa,
+            seifa: this.SeifaImage,
             map: this.mapImage,
             user: this.user
           })
