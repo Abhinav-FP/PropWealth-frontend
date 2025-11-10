@@ -550,86 +550,86 @@
           <!-- Get Report Modal end -->
           <v-dialog v-model="reportDialog" max-width="739" max-height="516">
             <v-card rounded="xl">
-              <v-card-title class="headline formtitle pr-4 d-flex justify-space-between align-center">
-                <p>Please share your details to download the report</p>
-                <v-btn class="closeicon formclose" icon @click="reportDialog = false">
-                  <v-icon>{{ icons.close }}</v-icon>
-                </v-btn>
-              </v-card-title>
-              <v-card-text>
-                <v-form class="inputs-fields">
-                  <!-- <v-alert type="info" outlined class="mb-4" dense>
-                    We’ll text you a one-time code to verify your mobile.
-                  </v-alert> -->
-                  <v-text-field
-                    v-model="fullName"
-                    label="Full Name"
-                    solo
-                    dense
-                    class="mb-4"
-                    :error="errors.first_name ? true : false"
-                    :error-messages="errors.first_name"
-                    hint="Enter your name as it appears on your ID"
-                    persistent-hint
-                  ></v-text-field>
-
-                  <v-row no-gutters class="mb-4">
-                    <!-- Country Code Select -->
-                    <v-col cols="3">
-                      <v-select v-model="countryCode" :items="countryCodes" item-text="display" item-value="code"
-                        label="Country" solo dense class="country-code-select"
-                        :error="errors.mobile_number ? true : false">
-                        <template v-slot:selection="{ item }">
-                          <span class="flag-emoji">{{ item.flag }}</span>
-                          <span class="ml-1">{{ item.code }}</span>
-                        </template>
-                        <template v-slot:item="{ item }">
-                          <span class="flag-emoji">{{ item.flag }}</span>
-                          <span class="ml-2">{{ item.display }}</span>
-                        </template>
-                      </v-select>
-                    </v-col>
-
-                    <!-- Mobile Number Input -->
-                    <v-col cols="9">
-                      <v-text-field
-                        v-model="mobileNumber"
-                        label="Mobile Number"
-                        solo
-                        dense
-                        type="tel"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        maxlength="15"
-                        class="mobile-number-input"
-                        :error="errors.mobile_number ? true : false"
-                        :error-messages="errors.mobile_number"
-                        @input="onMobileInput"
-                        hint="Digits only, 6–15 characters. No spaces or symbols."
-                        persistent-hint
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-
-                  <!-- <v-text-field v-model="mobileNumber" label="Mobile Number" solo dense class="mb-4"
-                    :error="errors.mobile_number ? true : false" :error-messages="errors.mobile_number"></v-text-field> -->
-
-                  <v-text-field v-model="email" label="Email" solo dense :error="errors.email ? true : false"
-                    :error-messages="errors.email" hint="We’ll send your report to this email" persistent-hint></v-text-field>
-                </v-form>
-              </v-card-text>
-
-              <v-card-actions class="d-flex flex-column align-center px-4 pb-4">
-                <div class="d-flex justify-center">
-                  <v-btn color="#EE2E67" dark class="report-btn" @click="submitReport" :loading="submitLoading">
-                    {{ submitLoading ? 'Submitting...' : 'Email Report To Me' }}
+                <v-card-title class="headline formtitle pr-4 d-flex justify-space-between align-center">
+                  <p>Please share your details to download the report</p>
+                  <v-btn class="closeicon formclose" icon @click="reportDialog = false">
+                    <v-icon>{{ icons.close }}</v-icon>
                   </v-btn>
-                </div>
-
-                <h1 class="text-caption submit-text mt-4 d-none">
-                  Already submitted? <a href="#" @click.prevent="loginDialog = true">Log in</a>
-                </h1>
-              </v-card-actions>
+                </v-card-title>
+                <v-card-text>
+                  <v-form class="inputs-fields">
+                    <!-- <v-alert type="info" outlined class="mb-4" dense>
+                      We’ll text you a one-time code to verify your mobile.
+                    </v-alert> -->
+                    <v-text-field
+                      v-model="fullName"
+                      label="Full Name"
+                      solo
+                      dense
+                      class="mb-4"
+                      :error="errors.first_name ? true : false"
+                      :error-messages="errors.first_name"
+                      hint="Enter your name as it appears on your ID"
+                      persistent-hint
+                    ></v-text-field>
+  
+                    <v-row no-gutters class="mb-4">
+                      <!-- Country Code Select -->
+                      <v-col cols="3">
+                        <v-select v-model="countryCode" :items="countryCodes" item-text="display" item-value="code"
+                          label="Country" solo dense class="country-code-select"
+                          :error="errors.mobile_number ? true : false">
+                          <template v-slot:selection="{ item }">
+                            <span class="flag-emoji">{{ item.flag }}</span>
+                            <span class="ml-1">{{ item.code }}</span>
+                          </template>
+                          <template v-slot:item="{ item }">
+                            <span class="flag-emoji">{{ item.flag }}</span>
+                            <span class="ml-2">{{ item.display }}</span>
+                          </template>
+                        </v-select>
+                      </v-col>
+  
+                      <!-- Mobile Number Input -->
+                      <v-col cols="9">
+                        <v-text-field
+                          v-model="mobileNumber"
+                          label="Mobile Number"
+                          solo
+                          dense
+                          type="tel"
+                          inputmode="numeric"
+                          pattern="[0-9]*"
+                          maxlength="15"
+                          class="mobile-number-input"
+                          :error="errors.mobile_number ? true : false"
+                          :error-messages="errors.mobile_number"
+                          @input="onMobileInput"
+                          hint="Digits only, 6–15 characters. No spaces or symbols."
+                          persistent-hint
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+  
+                    <!-- <v-text-field v-model="mobileNumber" label="Mobile Number" solo dense class="mb-4"
+                      :error="errors.mobile_number ? true : false" :error-messages="errors.mobile_number"></v-text-field> -->
+  
+                    <v-text-field v-model="email" label="Email" solo dense :error="errors.email ? true : false"
+                      :error-messages="errors.email" hint="We’ll send your report to this email" persistent-hint></v-text-field>
+                  </v-form>
+                </v-card-text>
+  
+                <v-card-actions class="d-flex flex-column align-center px-4 pb-4">
+                  <div class="d-flex justify-center">
+                    <v-btn color="#EE2E67" dark class="report-btn" @click="submitReport" :loading="submitLoading">
+                      {{ submitLoading ? 'Submitting...' : 'Email Report To Me' }}
+                    </v-btn>
+                  </div>
+  
+                  <h1 class="text-caption submit-text mt-4 d-none">
+                    Already submitted? <a href="#" @click.prevent="loginDialog = true">Log in</a>
+                  </h1>
+                </v-card-actions>
             </v-card>
           </v-dialog>
 
@@ -2928,12 +2928,14 @@ async captureSeifaSection() {
         title: 'Report Generated',
         text: 'Your property report has been generated successfully.',
         confirmButtonColor: '#EE2E67',
-        customClass: { confirmButton: 'swal-btn' }
+        customClass: {
+          title: 'swal-title',
+          htmlContainer: 'swal-text', // or `content` for older versions
+          confirmButton: 'swal-btn'
+        }
       }).then(() => {
-        // Trigger PDF download
-        console.log('📧 Triggering downloadPdf() from emailReport');
         this.downloadPdf();
-      });
+      }); // ✅ Important: close this line fully
     },
 
     maskMobileNumber(number) {
@@ -4060,6 +4062,7 @@ ul {
 
 .v-btn.report-btn {
   font-size: 18px !important;
+  font-family: 'Inter', sans-serif;
 }
 
 .swal2-actions .swal-btn {
@@ -4087,7 +4090,7 @@ h1.text-caption.submit-text.mt-4 {
 .v-card__title.headline.d-flex.justify-space-between.align-center {
   font-size: 24px !important;
   font-weight: bold;
-  font-family: 'Montserrat';
+  font-family: 'Montserrat', sans-serif !important;
   line-height: 100%;
 }
 
@@ -4132,6 +4135,18 @@ h1.text-caption.submit-text.mt-4 {
   letter-spacing: normal !important;
 }
 
+.swal-title{
+font-family: 'Montserrat', sans-serif !important;  
+}
+
+.swal-text{
+font-family: 'Inter', sans-serif !important;
+}
+
+.swal-btn{
+font-family: 'Inter', sans-serif !important;
+}
+
 /* Remove the block behavior since we're setting a specific width */
 .v-btn.report-btn.v-btn--block {
   width: 198px !important;
@@ -4162,6 +4177,7 @@ h1.text-caption.submit-text.mt-4 {
   font-size: 16px !important;
   line-height: 1.5 !important;
   margin: 0 !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 .close-btn-otp {
@@ -4223,6 +4239,7 @@ h1.text-caption.submit-text.mt-4 {
   color: #666 !important;
   font-size: 14px !important;
   margin: 0 !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 .resend-timer {
@@ -4237,6 +4254,7 @@ h1.text-caption.submit-text.mt-4 {
   font-weight: 600 !important;
   font-size: 14px !important;
   transition: color 0.2s ease !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 .resend-link:hover {
@@ -4252,6 +4270,7 @@ h1.text-caption.submit-text.mt-4 {
   font-weight: 600 !important;
   letter-spacing: normal !important;
   transition: all 0.2s ease !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 .verify-btn-otp:hover {
