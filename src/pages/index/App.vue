@@ -683,6 +683,12 @@
                     ></v-text-field>
                   </div>
 
+                  <div v-if="otpErrorMessage || (errors.otp && errors.otp.length)" class="mb-4">
+                    <v-alert type="error" outlined dense class="otp-error-alert">
+                      {{ otpErrorMessage || (errors.otp && errors.otp[0]) }}
+                    </v-alert>
+                  </div>
+
                   <div class="text-center mb-4">
                     <p class="resend-text mb-2">
                       Didn't receive the code?
@@ -983,6 +989,7 @@ export default {
     currentUserId: null,
     maskedMobileNumber: '',
     pendingAction: null, // 'email' or 'download'
+    otpErrorMessage: '',
 
     selectedSuburbGeoJson: null,
 
@@ -2402,9 +2409,7 @@ async captureSeifaSection() {
             console.log('📋 Starting resend timer');
             this.startResendTimer();
             
-            // Show success message about OTP being sent
-            console.log('📋 Showing success toast with message:', response.message);
-            this.$toast.success(response.message || 'Verification code sent to your mobile number!');
+            // Success notice suppressed; show inline errors only
             
           } catch (innerError) {
             console.error('❌ Error in form success handler:', innerError);
@@ -2639,7 +2644,7 @@ async captureSeifaSection() {
         }
 
         if (!this.currentUserId) {
-          this.$toast.error('User ID not found. Please try submitting the form again.');
+          this.otpErrorMessage = 'User ID not found. Please try submitting the form again.';
           this.verifyLoading = false;
           return;
         }
@@ -2666,7 +2671,7 @@ async captureSeifaSection() {
           data = await response.json();
         } catch (parseError) {
           console.error('Failed to parse JSON response:', parseError);
-          this.$toast.error('Invalid server response. Please try again.');
+          this.otpErrorMessage = 'Invalid server response. Please try again.';
           this.verifyLoading = false;
           return;
         }
@@ -2674,7 +2679,7 @@ async captureSeifaSection() {
         // Ensure data is a valid object
         if (!data || typeof data !== 'object') {
           console.error('Invalid data structure:', data);
-          this.$toast.error('Invalid server response structure. Please try again.');
+          this.otpErrorMessage = 'Invalid server response structure. Please try again.';
           this.verifyLoading = false;
           return;
         }
@@ -2690,8 +2695,7 @@ async captureSeifaSection() {
           this.otpDialog = false;
           this.clearResendTimer();
           
-          // Show success message
-          this.$toast.success(data.message || 'Mobile number verified successfully!');
+          // Success toast removed; proceed silently
           
           // Continue with report generation or download  
           console.log('✅ OTP verification successful, proceeding to next step');
@@ -2716,7 +2720,7 @@ async captureSeifaSection() {
           
           // Show error message with fallback
           const errorMessage = (data && Object.prototype.hasOwnProperty.call(data, 'message')) ? data.message : 'OTP verification failed. Please try again.';
-          this.$toast.error(errorMessage);
+          this.otpErrorMessage = errorMessage;
         }
       } catch (error) {
         console.error('OTP verification error:', error);
@@ -2725,11 +2729,11 @@ async captureSeifaSection() {
         console.error('Error stack:', error.stack);
         
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
-          this.$toast.error('Network error: Unable to connect to server. Please check your connection.');
+          this.otpErrorMessage = 'Network error: Unable to connect to server. Please check your connection.';
         } else if (error.name === 'SyntaxError') {
-          this.$toast.error('Server response error: Invalid response format.');
+          this.otpErrorMessage = 'Server response error: Invalid response format.';
         } else {
-          this.$toast.error('Failed to verify OTP. Please try again.');
+          this.otpErrorMessage = 'Failed to verify OTP. Please try again.';
         }
       } finally {
         this.verifyLoading = false;
@@ -2756,30 +2760,30 @@ async captureSeifaSection() {
           data = await response.json();
         } catch (parseError) {
           console.error('Failed to parse JSON response for resend OTP:', parseError);
-          this.$toast.error('Invalid server response. Please try again.');
+          this.otpErrorMessage = 'Invalid server response. Please try again.';
           return;
         }
         
         // Ensure data is a valid object
         if (!data || typeof data !== 'object') {
           console.error('Invalid resend OTP data structure:', data);
-          this.$toast.error('Invalid server response structure. Please try again.');
+          this.otpErrorMessage = 'Invalid server response structure. Please try again.';
           return;
         }
         
         console.log('Resend OTP response:', data);
 
         if (response.ok && Object.prototype.hasOwnProperty.call(data, 'success') && data.success === true) {
-          this.$toast.success(data.message || 'OTP sent successfully!');
+          // Success toast removed; reset inputs and timer only
           this.startResendTimer();
           this.otpDigits = ['', '', '', '', '', ''];
         } else {
           const errorMessage = (data && Object.prototype.hasOwnProperty.call(data, 'message')) ? data.message : 'Failed to resend OTP. Please try again.';
-          this.$toast.error(errorMessage);
+          this.otpErrorMessage = errorMessage;
         }
       } catch (error) {
         console.error('Resend OTP error:', error);
-        this.$toast.error('Failed to resend OTP. Please try again.');
+        this.otpErrorMessage = 'Failed to resend OTP. Please try again.';
       }
     },
 
@@ -2818,6 +2822,9 @@ async captureSeifaSection() {
       if (this.errors.otp) {
         this.errors = { ...this.errors };
         delete this.errors.otp;
+      }
+      if (this.otpErrorMessage) {
+        this.otpErrorMessage = '';
       }
     },
 
@@ -2890,6 +2897,9 @@ async captureSeifaSection() {
           this.errors = { ...this.errors };
           delete this.errors.otp;
         }
+        if (this.otpErrorMessage) {
+          this.otpErrorMessage = '';
+        }
       } catch (e) {
         console.error('Error handling OTP paste:', e);
       }
@@ -2952,6 +2962,7 @@ async captureSeifaSection() {
       this.currentUserId = null;
       this.maskedMobileNumber = '';
       this.pendingAction = null;
+      this.otpErrorMessage = '';
     },
 
     // Authentication removed - no verifyOtp method needed
@@ -4257,10 +4268,15 @@ font-family: 'Inter', sans-serif !important;
   font-family: 'Inter', sans-serif !important;
 }
 
-.resend-link:hover {
-  color: #d91e5b !important;
-  text-decoration: underline !important;
-}
+  .resend-link:hover {
+    color: #d91e5b !important;
+    text-decoration: underline !important;
+  }
+
+  .otp-error-alert {
+    font-family: 'Inter', sans-serif !important;
+    margin-bottom: 8px !important;
+  }
 
 .verify-btn-otp {
   width: 198px !important;
