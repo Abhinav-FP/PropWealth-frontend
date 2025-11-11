@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="375pt"
+   height="374.999991pt"
+   viewBox="0 0 375 374.999991"
+   version="1.2"
+   id="svg843"
+   sodipodi:docname="House Trends.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview845"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="pt"
+     showgrid="false"
+     inkscape:zoom="1.798"
+     inkscape:cx="73.414905"
+     inkscape:cy="250"
+     inkscape:window-width="1914"
+     inkscape:window-height="1174"
+     inkscape:window-x="0"
+     inkscape:window-y="20"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg843" />
+  <defs
+     id="defs834">
+    <clipPath
+       id="clip1">
+      <path
+         d="M 3 59.039062 L 371.996094 59.039062 L 371.996094 374.789062 L 3 374.789062 Z M 3 59.039062 "
+         id="path831" />
+    </clipPath>
+  </defs>
+  <g
+     id="surface1">
+    <g
+       clip-path="url(#clip1)"
+       clip-rule="nonzero"
+       id="g838">
+      <path
+         style="stroke:none;fill-rule:nonzero;fill:#000000;fill-opacity:1"
+         d="M 266.488281 85.351562 L 305.984375 85.351562 L 305.984375 152.109375 L 266.488281 121.070312 Z M 187.496094 75.792969 L 319.148438 179.140625 L 319.148438 361.632812 L 187.496094 361.632812 L 187.496094 216.914062 L 95.34375 216.914062 L 95.34375 361.632812 L 55.847656 361.632812 L 55.847656 179.140625 Z M 187.496094 59.039062 L 3.1875 203.757812 L 11.3125 214.085938 L 42.683594 189.472656 L 42.683594 374.789062 L 108.507812 374.789062 L 108.507812 230.070312 L 174.332031 230.070312 L 174.332031 374.789062 L 332.3125 374.789062 L 332.3125 189.472656 L 363.683594 214.085938 L 371.808594 203.757812 L 319.148438 162.386719 L 319.148438 72.195312 L 253.324219 72.195312 L 253.324219 110.6875 L 187.496094 59.039062 "
+         id="path836" />
+    </g>
+    <path
+       style="stroke:none;fill-rule:nonzero;fill:#000000;fill-opacity:1"
+       d="M 240.15625 230.070312 L 279.652344 230.070312 L 279.652344 282.695312 L 240.15625 282.695312 Z M 226.992188 216.914062 L 226.992188 295.851562 L 292.816406 295.851562 L 292.816406 216.914062 L 226.992188 216.914062 "
+       id="path840" />
+  </g>
+</svg>

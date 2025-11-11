@@ -2933,19 +2933,15 @@ async captureSeifaSection() {
       this.otpDialog = false;
 
       // Show success message then trigger PDF download
-      Swal.fire({
+      Swal.fire({ 
         icon: 'success',
-        title: 'Report Generated',
-        text: 'Your property report has been generated successfully.',
+        title: '<span style="font-family: Montserrat; font-size: 25px;">Report Generated</span>',
+        html: '<span style="font-family: Inter; font-size: 16px;">Your property report has been generated successfully.</span>',
         confirmButtonColor: '#EE2E67',
-        customClass: {
-          title: 'swal-title',
-          htmlContainer: 'swal-text', // or `content` for older versions
-          confirmButton: 'swal-btn'
-        }
+        customClass: { confirmButton: 'swal-btn' }
       }).then(() => {
         this.downloadPdf();
-      }); // ✅ Important: close this line fully
+      });
     },
 
     maskMobileNumber(number) {
@@ -3184,8 +3180,10 @@ async captureSeifaSection() {
         // Show success message with Laravel's success message
         Swal.fire({
           icon: 'success',
-          title: 'PDF Generated!',
-          text: data.message || 'Your PDF report has been generated successfully.',
+          title: '<span style="font-family: Montserrat; font-size: 25px;">PDF Generated!</span>',
+          html: `<span style="font-family: Inter; font-size: 16px;">
+                  ${data.message || 'Your PDF report has been generated successfully.'}
+                </span>`,
           confirmButtonColor: '#EE2E67',
           customClass: { confirmButton: 'swal-btn' },
           timer: 3000, // Auto close after 3 seconds
