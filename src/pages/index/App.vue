@@ -41,7 +41,7 @@
                 'd-flex': true,
                 'flex-column': true,
                 'px-3': true,
-                'pb-3': true,
+                'sm:pb-3': true,
                 'feature-active': selectedId,
                 'pointer-events-none': !selectedId
               }" ref="panelContent">
@@ -2838,73 +2838,93 @@ async captureSeifaSection() {
       }
     },
 
-    onOtpPaste(event) {
-      try {
-        // Prevent the default paste into a single field
-        if (event && typeof event.preventDefault === 'function') {
-          event.preventDefault();
-        }
+    // onOtpPaste(event) {
+    //   try {
+    //     // Prevent the default paste into a single field
+    //     if (event && typeof event.preventDefault === 'function') {
+    //       event.preventDefault();
+    //     }
 
-        // Extract pasted text from clipboard
-        let pasted = '';
-        if (event && event.clipboardData) {
-          pasted = event.clipboardData.getData('text') || event.clipboardData.getData('Text') || '';
-        } else if (window && window.clipboardData) {
-          // IE fallback
-          pasted = window.clipboardData.getData('Text') || '';
-        } else if (event && typeof event.data === 'string') {
-          // Some environments attach data directly
-          pasted = event.data;
-        }
+    //     // Extract pasted text from clipboard
+    //     let pasted = '';
+    //     if (event && event.clipboardData) {
+    //       pasted = event.clipboardData.getData('text') || event.clipboardData.getData('Text') || '';
+    //     } else if (window && window.clipboardData) {
+    //       // IE fallback
+    //       pasted = window.clipboardData.getData('Text') || '';
+    //     } else if (event && typeof event.data === 'string') {
+    //       // Some environments attach data directly
+    //       pasted = event.data;
+    //     }
 
-        // Keep only digits and cap to 6
-        const digits = String(pasted).replace(/\D/g, '').slice(0, 6);
-        if (!digits) return;
+    //     // Keep only digits and cap to 6
+    //     const digits = String(pasted).replace(/\D/g, '').slice(0, 6);
+    //     if (!digits) return;
 
-        // Determine starting index based on currently focused input
-        let startIndex = 0;
-        if (event && event.target) {
-          // Find which ref index matches the target
-          for (let i = 0; i < 6; i++) {
-            const ref = this.$refs[`otpInput${i}`];
-            if (ref && ref[0] === event.target) {
-              startIndex = i;
-              break;
-            }
-          }
-        }
+    //     // Determine starting index based on currently focused input
+    //     let startIndex = 0;
+    //     if (event && event.target) {
+    //       // Find which ref index matches the target
+    //       for (let i = 0; i < 6; i++) {
+    //         const ref = this.$refs[`otpInput${i}`];
+    //         if (ref && ref[0] === event.target) {
+    //           startIndex = i;
+    //           break;
+    //         }
+    //       }
+    //     }
 
-        // Fill the otpDigits array with pasted digits from startIndex
-        for (let i = 0; i < digits.length && (startIndex + i) < 6; i++) {
-          this.otpDigits[startIndex + i] = digits[i];
-        }
+    //     // Fill the otpDigits array with pasted digits from startIndex
+    //     for (let i = 0; i < digits.length && (startIndex + i) < 6; i++) {
+    //       this.otpDigits[startIndex + i] = digits[i];
+    //     }
 
-        // Focus next empty input, or last if all filled
-        let nextFocusIndex = Math.min(startIndex + digits.length, 5);
-        for (let i = 0; i < 6; i++) {
-          if (this.otpDigits[i] === '') {
-            nextFocusIndex = i;
-            break;
-          }
-        }
-        const nextRef = this.$refs[`otpInput${nextFocusIndex}`];
-        if (nextRef && nextRef[0] && typeof nextRef[0].focus === 'function') {
-          nextRef[0].focus();
-        }
+    //     // Focus next empty input, or last if all filled
+    //     let nextFocusIndex = Math.min(startIndex + digits.length, 5);
+    //     for (let i = 0; i < 6; i++) {
+    //       if (this.otpDigits[i] === '') {
+    //         nextFocusIndex = i;
+    //         break;
+    //       }
+    //     }
+    //     const nextRef = this.$refs[`otpInput${nextFocusIndex}`];
+    //     if (nextRef && nextRef[0] && typeof nextRef[0].focus === 'function') {
+    //       nextRef[0].focus();
+    //     }
 
-        // Clear any previous OTP errors once user pastes
-        if (this.errors.otp) {
-          this.errors = { ...this.errors };
-          delete this.errors.otp;
-        }
-        if (this.otpErrorMessage) {
-          this.otpErrorMessage = '';
-        }
-      } catch (e) {
-        console.error('Error handling OTP paste:', e);
-      }
+    //     // Clear any previous OTP errors once user pastes
+    //     if (this.errors.otp) {
+    //       this.errors = { ...this.errors };
+    //       delete this.errors.otp;
+    //     }
+    //     if (this.otpErrorMessage) {
+    //       this.otpErrorMessage = '';
+    //     }
+    //   } catch (e) {
+    //     console.error('Error handling OTP paste:', e);
+    //   }
+    // },
+    
+    onOtpPaste(e) {
+      e.preventDefault()
+
+      const pasteData = e.clipboardData
+        .getData('text')
+        .replace(/\D/g, '')
+        .slice(0, this.otpDigits.length)
+
+      if (!pasteData) return
+
+      pasteData.split('').forEach((char, index) => {
+        this.$set(this.otpDigits, index, char)
+      })
+
+      // 🔥 Force Vue to re-evaluate computed props
+      this.$nextTick(() => {
+        const lastIndex = pasteData.length - 1
+        this.$refs[`otpInput${lastIndex}`]?.[0]?.focus()
+      })
     },
-
     proceedAfterVerification() {
       console.log('🚀 proceedAfterVerification called');
       console.log('📋 pendingAction:', this.pendingAction);
@@ -3693,7 +3713,7 @@ async captureSeifaSection() {
     },
 
     isOtpComplete() {
-      return this.otpDigits.every(digit => digit !== '');
+      return this.otpDigits.every(d => d && d.length === 1)
     }
 
   }
@@ -3750,7 +3770,7 @@ body {
 
 [data-vuetify] .mobile .panel-content {
   position: relative;
-  margin-bottom: 39.5px;
+  /*margin-bottom: 39.5px;*/
   z-index: 1;
 }
 
@@ -4102,6 +4122,11 @@ h1.text-caption.submit-text.mt-4 {
   font-family: 'Montserrat', sans-serif !important;
   line-height: 100%;
 }
+@media (max-width: 600px) {
+  .v-card__title.headline.d-flex.justify-space-between.align-center {
+    font-size: 18px !important;
+  }
+}
 
 .inputs-fields .v-input--dense>.v-input__control>.v-input__slot {
   height: 60px;
@@ -4300,7 +4325,10 @@ font-family: 'Inter', sans-serif !important;
 
 @media (max-width: 480px) {
   .otp-title {
-    font-size: 24px !important;
+    font-size: 22px !important;
+  }
+  .otp-digit-input.v-input--dense.theme--light.v-text-field.v-text-field--is-booted.v-text-field--enclosed.v-text-field--outlined{
+    padding: 0px !important;
   }
 
   .otp-digit-input {
@@ -4662,7 +4690,7 @@ font-family: 'Inter', sans-serif !important;
 @media (max-width: 599px) {
   .v-list-item {
     min-height: 48px !important;
-    padding: 8px 16px !important;
+    /* padding: 8px 16px !important; */
   }
 
   .v-btn.close-button {
@@ -4836,6 +4864,30 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
 }
 .v-card__title.headline {
     word-break: auto-phrase !important;
+}
+
+@media (max-width: 600px) {
+  ::v-deep(.otp-digit-input.v-text-field.v-text-field--enclosed
+    > .v-input__control
+    > .v-input__slot) {
+    padding: 0 !important;
+  }
+
+  ::v-deep(.otp-digit-input .v-text-field__details) {
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .otp-digit-input.v-text-field.v-text-field--enclosed
+    > .v-input__control
+    > .v-input__slot {
+    padding: 0 !important;
+  }
+
+  .otp-digit-input .v-text-field__details {
+    padding: 0 !important;
+  }
 }
 
 </style>
