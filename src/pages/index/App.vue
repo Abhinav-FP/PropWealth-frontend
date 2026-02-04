@@ -3084,8 +3084,8 @@ async captureSeifaSection() {
             houseText: this.selectedFeature.Summary['House Text'],
             unitText: this.selectedFeature.Summary['Unit Text'],
             data: this.selectedFeature,
-            desc1: this.selectedFeature.Summary['House Text'],
-            desc2: this.selectedFeature.Summary['Unit Text'], 
+            desc_1: this.selectedFeature.Summary['House Text'],
+            desc_2: this.selectedFeature.Summary['Unit Text'], 
             // Include recipient details so backend can email the report
             recipient_email: this.email || '',
             recipient_name: this.fullName || '',
