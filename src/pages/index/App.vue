@@ -133,6 +133,20 @@
                           color="primary"></v-progress-linear>
                         <div v-if="selectedFeature && selectedFeature.Summary" class="text-body-1 mb-4">
                           {{ selectedFeature.Summary['Unit Text'] }}</div>
+
+                      <v-divider class="my-4"></v-divider>
+
+                      <h3 class="text-h3">Scores</h3>
+                      <v-progress-linear
+                        v-if="!(selectedFeature && selectedFeature.Scores)"
+                        indeterminate
+                        color="primary"
+                      />
+                      <score-radar-chart
+                        v-if="selectedFeature && selectedFeature.Scores"
+                        :scores="selectedFeature.Scores"
+                        ref="scoreRadarChart"
+                      />
                       </v-tab-item>
 
                       <v-tab-item key="House Trends">
@@ -309,38 +323,38 @@
                         </v-card>
                       </v-tab-item>
                       <v-tab-item key="Profiles">
-  <v-card
-    v-if="!(selectedFeature && !selectedFeature['SEIFA'])"
-    height="200"
-    elevation="0"
-    :loading="!(selectedFeature && selectedFeature['SEIFA'])"
-  >
-    <template slot="progress">
-      <v-layout fill-height align-center justify-center ma-0>
-        <v-progress-circular color="primary" indeterminate />
-      </v-layout>
-    </template>
+                        <v-card
+                          v-if="!(selectedFeature && !selectedFeature['SEIFA'])"
+                          height="200"
+                          elevation="0"
+                          :loading="!(selectedFeature && selectedFeature['SEIFA'])"
+                        >
+                          <template slot="progress">
+                            <v-layout fill-height align-center justify-center ma-0>
+                              <v-progress-circular color="primary" indeterminate />
+                            </v-layout>
+                          </template>
 
-    <!-- WRAPPER FOR CAPTURE -->
-    <div ref="seifaCaptureArea" class="seifa-capture-area d-flex">
+                          <!-- WRAPPER FOR CAPTURE -->
+                          <div ref="seifaCaptureArea" class="seifa-capture-area d-flex">
 
-      <BarChart
-        v-if="selectedFeature && selectedFeature['SEIFA']"
-        class="bar-chart seifa-chart float-left"
-        title="Social Index Distribution"
-        :data="selectedFeature['SEIFA']"
-      />
+                            <BarChart
+                              v-if="selectedFeature && selectedFeature['SEIFA']"
+                              class="bar-chart seifa-chart float-left"
+                              title="Social Index Distribution"
+                              :data="selectedFeature['SEIFA']"
+                            />
 
-      <v-list dense class="legend float-right">
-        <v-list-item v-for="[v, color] in sa1SeifaLegend" :key="v">
-          <v-avatar :color="color" tile class="mr-1" size="16" />
-          Rank {{ v }}
-        </v-list-item>
-      </v-list>
-      
-    </div>
-  </v-card>
-</v-tab-item>
+                            <v-list dense class="legend float-right">
+                              <v-list-item v-for="[v, color] in sa1SeifaLegend" :key="v">
+                                <v-avatar :color="color" tile class="mr-1" size="16" />
+                                Rank {{ v }}
+                              </v-list-item>
+                            </v-list>
+                            
+                          </div>
+                        </v-card>
+                      </v-tab-item>
                     </v-tabs-items>
                   </div>
                 </v-fade-transition>
@@ -815,6 +829,7 @@ import suburbsLocal from '../../../data/suburbs.json'
 import statesLocal from '../../../data/states.json'
 import LineChart from '@/components/LineChart'
 import BarChart from '@/components/BarChart'
+import ScoreRadarChart from '@/components/ScoreRadarChart.vue';
 // import BannerAd from '@/components/BannerAd'
 import Theme from '@/lib/Theme'
 
@@ -834,8 +849,7 @@ const sa1SeifaLegend = Theme.map.sa1SeifaFillColor
       acc.push([cur, arr[i + 1]])
     }
     return acc
-  }, [])
-
+  }, []);
 
 const charts = [
   'House Inventory',
@@ -890,6 +904,7 @@ export default {
   components: {
     LineChart,
     BarChart,
+    ScoreRadarChart
     // BannerAd
   },
 
@@ -1676,7 +1691,7 @@ export default {
             .then(res => (res && res.ok) ? res : fetch(`${fallbackBase}/${id}`))
             .then(res => res.json())
             .then(data => {
-              // console.log(data);
+              console.log("data", data);
 
               if ('House Price Segments' in data) {
                 for (const [key, value] of Object.entries(data['House Price Segments'])) {
@@ -1694,6 +1709,7 @@ export default {
               }
 
               this.suburbData[id] = data
+              // console.log('Scores from API:', this.suburbData[id]?.Scores);
               this.fetching[id] = null
               return data;
             })
@@ -3048,6 +3064,8 @@ async captureSeifaSection() {
       try {
         // Capture all charts from hidden components - no tab switching needed! 
         this.tab=7;
+        const scoreChart = await this.captureChartByRef('scoreRadarChart');
+        const score = 4;
         const houseInventoryChart = await this.captureChartByRef('houseInventory');
         const houseListingsChart = await this.captureChartByRef('houseListings');
         const housePriceChart = await this.captureChartByRef('housePrice');
@@ -3064,7 +3082,7 @@ async captureSeifaSection() {
         const elevation = await this.captureChartByRef('Elevation');
         // const seifa = await this.captureChartByRef('SEIFA');
         // const map = await this.captureMapForSuburb();
-        console.log("Image we are sedning for map: ", this.mapImage)
+        console.log("Image we are sedning for score: ", scoreChart);
 
         // const map = await this.captureChartByRef('suburbTrendsMap');
 
@@ -3101,6 +3119,8 @@ async captureSeifaSection() {
             unitRentsChart: unitRentsChart,
             vacancyRatesChart: vacancyRatesChart,
             housePriceSegments: housePriceSegments,
+            score: score,
+            scoreChart: scoreChart,
             elevation: elevation,
             seifa: this.SeifaImage,
             map: this.mapImage,
