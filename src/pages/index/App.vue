@@ -3065,6 +3065,7 @@ async captureSeifaSection() {
         // Capture all charts from hidden components - no tab switching needed! 
         this.tab=7;
         const scoreChart = await this.captureChartByRef('scoreRadarChart');
+        const score = 4;
         const houseInventoryChart = await this.captureChartByRef('houseInventory');
         const houseListingsChart = await this.captureChartByRef('houseListings');
         const housePriceChart = await this.captureChartByRef('housePrice');
@@ -3118,6 +3119,7 @@ async captureSeifaSection() {
             unitRentsChart: unitRentsChart,
             vacancyRatesChart: vacancyRatesChart,
             housePriceSegments: housePriceSegments,
+            score: score,
             scoreChart: scoreChart,
             elevation: elevation,
             seifa: this.SeifaImage,
